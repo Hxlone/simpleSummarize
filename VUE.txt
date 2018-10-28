@@ -1,0 +1,630 @@
+基础：
+因为 Vue.js 使用了 IE8 不能模拟的 ECMAScript 5 特性，所以不能兼容ie8及以下浏览器。
+
+Vue是一套用于构建用户界面的渐进式框架。
+Vue是一套构建用户界面的渐进式框架。与其他重量级框架不同的是，Vue 采用自底向上增量开发的设计。Vue 的核心库只关注视图层，容易学习，非常容易与其它库或已有项目整合。
+Vue.js 的核心是一个允许采用简洁的模板语法来声明式地将数据渲染进 DOM 的系统.
+
+
+每个 Vue 实例在被创建时都要经过一系列的初始化过程,在这个过程中也会运行一些叫做生命周期钩子的函数，这给了用户在不同阶段添加自己的代码的机会。
+
+vue生命周期函数
+             
+vue生命周期过程:
+1. new Vue()
+
+2. 加载生命周期函数
+
+3. beforeCreate(){} :实例创建前
+
+4. 加载属性和计算属性，方法（data，computed，methods，watch）
+给属性添加setter  getter
+
+5. created()创建完成，可以开始进行属性的操作
+
+6. 判断实例对象有没有配置el，/判断是否执行了$mount()
+判断是否拥有这个选择器的dom结构
+
+7. beforeMount(): 挂载前，vue实例作用在dom结构上
+
+8. mounted(): 挂载完毕了，vue实例已经作用在dom结构上。
+
+vm实例上的属性，计算属性如果发生变化，
+导致会执行更新的生命周期方法：
+beforeUpdate()
+updated() 
+注：更新指的不是数据的更新，是dom结构的更新，数据变化导致的。
+
+实例销毁  执行$destroy()销毁实例，销毁只是将vue实例作用的dom结构和实例的关联断开。
+beforeDestroy()
+destroyed(): Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+                   
+通常在组件的生命周期方法中执行的操作：
+created():  可以开始进行属性的操作
+mounted():  可以开始执行dom操作
+updated():  在数据更新后，需要刷新dom，或者是重置样式的操作（强制刷新：this.$forceUpdate()）。
+beforeDestroy(): 释放内存空间，移除监听
+activated(): keep-alive 组件激活时调用。该钩子在服务器端渲染期间不被调用。
+deactivated(): keep-alive 组件停用时调用。该钩子在服务器端渲染期间不被调用。
+errorCaptured(): 当捕获一个来自子孙组件的错误时被调用。此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。此钩子可以返回 false 以阻止该错误继续向上传播。
+
+挂载  $mount()实例方法
+销毁  $destroyed()
+
+ 
+父子组件通信方式：
+    1.父组件传值给子组件：
+         父组件通过给子组件属性绑定的形式
+         1).父组件调用子组件时，给子组件绑定属性
+         <son :data="sendData"></son>
+         2).子组件需要在props中声明接收外部属性data（数组形式接收:只需要声明属性名字，对象形式接收：需要做属性校验）
+         3).子组件通过this访问属性名字就可以使用父组件传入的属性值
+             子组件使用外部属性时，只可以使用，不可以更改(props接收外部标签中属性,是单向数据流)。如果需要修改外部数据，需要将外部数据转为内部数据（数组、对象的深复制: myArr: [...this.arr],myObj: Object.assign({}, this.obj)）。
+    
+    2.子组件传值给父组件：
+         父组件通过给子组件自定义事件传值
+         1).父组件使用子组件时，在子组件标签中自定义事件给子组件。
+             <son @passData="getData"></son>
+             passData:子组件自定义的事件名称
+             getData：父组件的方法，准备接收子组件数据的方法
+         2).子组件传值给父组件时，子组件触发自定义事件。
+             this.$emit('passData', {传参的参数});
+         3).父组件在方法中，接收到数据
+
+ 非父子组件的传值：
+    利用中间件空实例center传值。(可以是一个center.js文件，也可以把空实例center挂靠在vue原型上)
+    1.监听事件: center.$on('自定义事件名字', ()=>{监听到事件的回调});
+    2.触发事件: center.$emit('自定义事件名字', {传参});
+    3.对同一个对象执行监听和触发
+    4.先监听，后触发
+    5.在组件销毁时，需要移除监听
+
+
+vue实例中的属性和方法的访问形式：
+ 属性：在dom结构中访问：{{message}}
+      在js中，实例外部访问：vm.message
+      在js中，实例内部访问：this.message
+
+ 方法：在dom结构中访问：{{countAction()}}
+      在dom结构中事件触发：@click="countAction()"
+      在js中，实例外部访问： vm.countAction()
+           在js中，实例内部访问： this.countAction()
+
+
+声明组件 :    （实例有的组件都有，实例可操作的组件都可以操作）
+方式一，声明全局组件：
+一定要在vm实例创建前声明：
+参数一：组件名字；参数二：组件内容：  Vue.component(Box.name, Box);
+
+方式二，声明局部组件：在let vm = new Vue() 实例中添加
+ components: {
+     //key值：组件名字
+     //value值：组件内容
+     'modify-com': modifyCom
+ }
+
+
+vue/数据
+components props>>>data>>>computed>>>watch   methods
+外部属性props：      1 .props接收外部标签中属性
+               2.单向数据流：外部属性只可以使用，不可以更改
+               3.如果需要修改外部数据，将外部数据转为内部数据
+
+内部属性data：Vue 实例的数据对象。Vue 将会递归将 data 的属性转换为 getter/setter，从而让 data 的属性能够响应数据变化。对象必须是纯粹的对象 (含有零个或多个的 key/value 对)：浏览器 API 创建的原生对象，原型上的属性会被忽略。大概来说，data 应该只能是数据 - 不推荐观察拥有状态行为的对象。
+
+计算属性computed： 使用规则跟属性是一模一样，setter，getter函数有自己实现，计算完毕后将结果进行缓存，如果相关联的属性没有发生变化，那么getter函数不会在再执行，直接用缓存的值。
+
+方法属性methods:  将被混入到 Vue 实例中。可以直接通过 VM 实例访问这些方法，或者在指令表达式中使用。方法中的 this 自动绑定为 Vue 实例。
+
+监听属性watch:  一个对象，键是需要观察的表达式，值是对应回调函数。值也可以是方法名，或者包含选项的对象。Vue 实例将会在实例化时调用 $watch()，遍历 watch 对象的每一个属性。
+
+
+实例方法/事件
+vm.$on ( event, callback )  监听当前实例上的自定义事件。事件可以由vm.$emit触发。回调函数会接收所有传入事件触发函数的额外参数。
+
+vm.$emit ( event, [...args] )  触发当前实例上的事件。附加参数都会传给监听器回调。
+
+vm.$once ( event , callback )  监听一个自定义事件，但是只触发一次，在第一次触发之后移除监听器。
+
+vm.$off ( [ event , callback ] )  移除自定义事件监听器。 
+
+	* 如果没有提供参数，则移除所有的事件监听器；
+	* 如果只提供了事件，则移除该事件所有的监听器；
+	* 如果同时提供了事件与回调，则只移除这个回调的监听器。
+
+
+
+内置的组件
+keep-alive  <keep-alive> 包裹动态组件时，会缓存不活动的组件实例，而不是销毁它们。在keep-alive内部，如果有组件会销毁， keep-alive会阻止组件销毁，并且将组件缓存起来。下一次需要使用时，不在创建，直接使用缓存的。
+
+component 渲染一个“元组件”为动态组件。依 is 的值，来决定哪个组件被渲染。 eg:  <component :is="showCom"></component>  showCom是代表组件的一个变量。
+
+slot  <slot> 元素作为组件模板之中的内容分发插槽。<slot> 元素自身将被替换。slot接收组件标签内部的dom，装载到组件内部。在父组件引入的子组件标签中直接写内容是显示不了的，此时若想直接在父组件引入的子组件标签中写内容就需要在子组件中加插槽<slot></slot>。插槽也可命名：例如 子组件中写
+<slot name="ul-list"></slot>   
+父组件中写<ul slot="ul-list">
+           <li>item1</li>
+        </ul>
+
+动画
+transition  <transition> 元素作为单个元素/组件的过渡效果。<transition> 只会把过渡效果应用到其包裹的内容上，而不会额外渲染 DOM 元素，也不会出现在检测过的组件层级中。
+
+     使用动画，变换box, transiton包裹的内容必须要是会删除或者是display=none。
+       当标签显示时：会自动给transiton标签添加class名字： name-enter 
+                                               name-enter-to
+                                               name-enter-active
+       当标签隐藏时：会自动给transiton标签添加class名字： name-leave 
+                                               name-leave-to
+                                               name-leave-active
+        <transition name="test">
+           <div class="box" v-show="isShow"></div>
+        </transition>
+
+    <!-- 自定义动画的class名字 可以设置自己设置时间和样式，可以使用animate.css中的动画 -->
+    <transition
+       enter-class="" enter-to-class="" enter-active-class="rollIn"
+       leave-active-class="hinge">
+       <div class="box" v-show="isShow"></div>
+    </transition>
+给单个box添加动画 <transition></transition>
+给多个box添加动画 <transition-group></transition-group>
+
+
+特殊特性
+ref：ref用来给组件的dom结构设置唯一标识符 //相当于id。（在vue中，dom操作不要用document，也不要用JQ的$符号，用ref）。
+    如果ref给标签设置，使用this.$refs访问时，就是标签的dom对象 。
+    如果ref给组件设置，使用this.$refs访问时，是组件对象，可以得到组件内部的所有内容，因此可以给子组件标签设置ref来调用子组件的方法和访问属性。
+例如：<input ref="in" type="text" />
+     var input = this.$refs.in; //获取相对应的input
+     console.log(this.$refs); //获取所有用ref标记了的DOM结构
+
+
+选项/资源
+filters：过滤器
+将数据传入过滤器中，过滤器对数据进行处理，得到的结果返回出去
+参数1：过滤器名字
+参数2：过滤器函数
+例如：Vue.filter('currency', (val, ...rest)=>{
+          console.log('调用了currency过滤器');
+          console.log(rest);
+          return '�'+val;
+     })
+<!-- 使用currency过滤器，过滤数据 -->
+    <p>价格：{{99.99 | currency}}</p>
+    <p>价格：{{56.89 | currency}}</p>
+
+directives :  创建自定义指令
+          参数1：指令名字
+          参数2:指令的实现函数
+例如：1.v-show
+Vue.directive('myShow', (el, info)=>{//el:指令元素属性；info：指令信息；
+    console.log('test指令调用了');
+    console.log(el, info);
+    el.style.display = info.value?'':'none';
+});
+
+	1. v-drag //拖拽  
+
+Vue.directive('drag', (el, info)=>{
+    el.style.position = 'absolute';
+    el.style.top = '0';
+    el.style.left = '0';
+    
+    var startX = 0;
+    var startY = 0;
+    
+    el.onmousedown = function(ev){
+         //记录起始位置
+         var disX = ev.clientX - startX;
+         var disY = ev.clientY - startY;
+         var left;
+         var top;
+         document.onmousemove = function(ev){
+             //计算移动的位置
+             left = ev.clientX -disX;
+             top = ev.clientY -disY;
+             el.style.left = left+'px';
+             el.style.top = top+'px';
+         }
+         document.onmouseup = function(){
+             //记录结束的位置
+             startX = left;
+             startY = top;
+             document.onmousemove = null;
+             document.onmouseup = null;
+         }
+    }
+})
+
+
+选项/DOM
+ el : 只在由 new 创建的实例中遵守。
+提供一个在页面上已存在的 DOM 元素作为 Vue 实例的挂载目标。可以是 CSS 选择器，也可以是一个 HTMLElement 实例。
+在实例挂载之后，元素可以用 vm.$el 访问。
+如果这个选项在实例化时有作用，实例将立即进入编译过程，否则，需要显式调用 vm.$mount() 手动开启编译。
+
+render :  字符串模板的代替方案，允许你发挥 JavaScript 最大的编程能力。该渲染函数接收一个 createElement 方法作为第一个参数用来创建 VNode。
+如果组件是一个函数组件，渲染函数还会接收一个额外的 context 参数，为没有实例的函数组件提供上下文信息。
+例如：const vm = new Vue({
+         el: '#app',
+         /*render: function(handle){ return handle(App) }*/ 同下
+         render: h=>h(App)
+     })
+
+
+Vue.nextTick( )
+由于 Vue 进行 异步更新 DOM 的情况，一些依赖 DOM 更新结果的断言必须在 Vue.nextTick 回调中进行：
+methods: {
+       requestData(){
+           //请求轮播数据
+           getBannerData({
+               latitude: this.lat,
+               longitude: this.lon,
+               templates: ['main_template', 'favourable_template', 'svip_template']
+           })
+           .then(result=>{
+//             console.log(result);
+               //设置轮播数据
+               this.bannerData = result;
+               //$nextTick代表：bannerData数据变化，导致dom更新，updated完毕后，触发$nextTick中的回调,之间不要加其他代码要接在一起。
+               this.$nextTick(()=>{
+                  //更新轮播页面数量
+                   this.bannerSwiper.update();
+               })
+           })
+       }
+    },
+
+
+
+Vuex：
+Vuex 是一个专为 Vue.js 应用程序开发的状态管理模式。它采用集中式存储管理应用的所有组件的状态，并以相应的规则保证状态以一种可预测的方式发生变化。
+
+  全局状态（数据）：const state = { }；
+  全局计算状态，如果state的值没有变，getters会只是缓存值：const getters = { }；
+  操作state的方法，只做state的修改，不包含异步操作，不做逻辑运算：const mutations = { }；
+  state的逻辑操作，可以包含异步操作：const actions = { }；
+
+              //触发mutations,
+              //参数1：mutation名字，
+              //参数2：传参值
+              this.$store.commit('modifyMessage', {
+                  value: 'hello world'
+              });
+              //触发actions
+              this.$store.dispatch('getMessageAction', {
+                  test: '123'
+              });
+              //触发user模块的actions
+              this.$store.commit('user/modifyUsername', {
+                  value: 'test user mutations'
+              });
+              
+              //触发user模块actions
+              this.$store.dispatch('user/usernameAction', {
+                  value: 'test user actions'
+              });
+
+computed: {
+         //把全局属性转为组件的计算属性
+         ...mapState({
+              msg: (state)=>state.message
+         }),
+         //把全局计算属性，转为组件的计算属性
+//方式一  ...mapGetters(['msgLen']),
+//方式二  ...mapGetters({
+              len: 'msgLen'//getter只可以根据state修改，其他不能修改
+         }),
+         //自己的属性
+         count(){
+              return this.aNum+this.bNum;
+         }
+     },
+     
+ methods: {
+         ...mapMutations({
+              modifyMsg: 'modifyMessage'
+         }),
+         
+         ...mapActions({
+              selectMsg: 'userSelectMessageAction'
+         }),
+     }
+
+VUEX流程： 计算状态getters是根据state得到的，state通过this.$store.commit(函数名称,传值) 触发mutations中的函数修改。一般都是通过 this.$store.dispatch(函数名称,传值) 触发actions中的函数来执行this.$store.commit(函数名称,传值)，外部只调用actions。
+
+编译vue文件 ： cnpm install vue-loader -D
+
+
+一个index.js文件：
+import Vue from 'vue'
+import Vuex from 'vuex'
+Vue.use(Vuex);
+import userModule from './userModule.js'
+//全局状态
+const state = {
+    message: 'hello vuex',
+    title: 'ele'
+};
+//全局计算状态,如果state的值没有变，getters会只是缓存值
+const getters = {
+    msgLen(state){
+       console.log(1);
+       return state.message.length;
+    }
+}
+//操作state的方法, 只做state的修改，不做逻辑运算
+const mutations = {
+    modifyMessage(state, params){
+       console.log('modifyMessage方法触发了');
+       state.message = params.value;
+    },
+    modifyTitle(){
+       console.log('modifyTitle方法触发了');
+    }
+};
+//state的逻辑操作，可以包含异步操作
+const actions = {
+    getMessageAction(context, params){
+       setTimeout(function(){
+           console.log('请求到了后台数据');
+           var msg = 'hello vue';
+           
+           context.commit('modifyMessage', {
+               value: msg
+           });
+           
+       }, 2000);
+    },
+    userSelectMessageAction(context, params){
+       console.log('userSelectMessageAction 触发了');
+       var msg = 'hello ' + params.value;
+       context.commit('modifyMessage', {
+           value: msg
+       });
+    }
+}
+//创建管理全局数据的仓库
+const store = new Vuex.Store({
+    state,
+    getters,
+    mutations,
+    actions,
+    modules: {
+       'user': userModule
+    }
+});
+export default store;
+
+
+一个模块文件：
+//模块状态
+const state = {
+    username: 'zhangsan',
+    password: '',
+    img: '',
+    address: ''
+};
+//模块计算状态
+const getters = {
+    nameLen(state){
+       return state.username.length;
+    }
+}
+const mutations = {
+    modifyUsername(state, params){//state是该模块内部state
+       console.log('modifyUsername触发了 ');
+    }
+};
+const actions = {
+    usernameAction(context, params){
+       console.log('usernameAction触发了 ');
+       
+    }
+}
+export default {
+    namespaced: true,
+    state,
+    getters,
+    mutations,
+    actions
+}
+
+
+
+VUE 杂记：
+MVC：Model(模型)+View(视图)+controller(控制器)，主要是基于分层的目的，让彼此的职责分开。
+MVVM：MVVM是把MVC里的Controller和MVP里的Presenter改成了ViewModel。Model+View+ViewModel。
+View的变化会自动更新到ViewModel,ViewModel的变化也会自动同步到View上显示。
+MVVM模式的框架有：AngularJS+Vue.js和Knockout+Ember.js后两种知名度较低以及是早起的框架模式。
+
+Node.js {{ }}  与Vue {{ }} 底层原理的区别：
+
+Node.js {{ }}  读文件时，正则匹配的双花括号统统替换成真实的数据，不是当成DOM结构操作，而是当成字符串操作。
+
+
+Vue {{ }}   对data数据进行监听，如果页面有用这个数据的话，就会对这个位置进行记录，然后操作DOM结构进行替换。
+
+
+指令：给标签添加属性，属性写法都是以 V- 开头 : V- 指令名字，指令对应的值是js表达式；
+指令作用：给不同的标签添加不同的行为，哪怕是同一个指令给不同的标签添加上行为都会不同。
+
+
+v-if  v-show  差别：不可见时，show是修改的样式，而if 是直接将这个标签从文档流中删除。 需要频繁切换显示的时候用show，很少使用的点击显示按钮可用 if。
+
+
+在vue中，数据是双向绑定的。 js中的属性或者表达式的运算结果绑定给了dom结构，同时dom结构的操作赋值给了js中的属性。
+
+<p>{{ title }} </p>
+<input type=text  ：value='title‘ />   先输入框变，导致js的title变，title变导致p标签变。
+ 
+v-model 如果是赋值给单选框、多选框、选择框，则绑定值是value的属性值。
+
+
+双向绑定原理
+数据劫持: vue.js 则是采用数据劫持结合发布者-订阅者模式的方式，通过Object.defineProperty()来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。
+
+   整理了一下，要实现mvvm的双向绑定，就必须要实现以下几点：
+
+	1. 实现一个数据监听器Observer，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者
+	2. 实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数
+	3. 实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图
+	4. mvvm入口函数，整合以上三者
+
+         
+  v-bind: <!--   class 
+               style
+               title
+               id
+               href
+               src
+               name
+               type
+               ........
+           -->
+
+
+
+
+
+vue-Router：
+
+router的作用：根据地址的不同，分配给不同的组件去显示界面。切换时不会刷新整个页面，减少了性能消耗。
+路由容器：<router-view></router-view>
+界面切换：
+方式一: <li class='tab'><a href='#/home'>首页</a></li>
+
+方式二: <router-link  to='/home' class='tab'>首页</router-link>  内部自带.active可设置点击样式。
+
+方式三： <li class='tab' @click="tabAction('/home')">首页</li>
+   tabAction(path){
+           //通过js切换页面
+           //编程式导航
+           //操作路由对象
+           this.$router.push(path);
+   }
+           this.$router.push();//进入指定页面
+           //返回
+           this.$router.back();
+//         this.$router.go(-3)
+
+页面传值：
+传值：
+   方式一：
+methods: {
+       detailAction(index){
+//         this.$router.push('/home/detail/'+index);
+//         this.$router.push('/home/detail/'+index+'/'+this.listData[index].title);
+           this.$router.push('/home/detail/'+index+'/'+this.listData[index].title+'?des='+this.listData[index].description);
+           
+       }
+    }
+  方式二：
+<router-link class="item" v-for="(item,index) in listData" :key="index" :to="'/home/detail/'+index+'/'+item.title">
+               {{item.title}}
+           </router-link>
+接收:
+mounted(){
+       //取路径中的参数
+       console.log(this.$route);
+       let id = this.$route.params.id;
+       this.title = this.$route.params.title;
+       //取路径的query参数
+       this.des = this.$route.query.des;
+    }
+
+
+
+
+一个router文件：
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+//引入页面组件
+import Home from '../pages/Home.vue'
+import Discover from '../pages/Discover.vue'
+import Setting from '../pages/Setting.vue'
+import Notfind from '../pages/Notfind.vue'
+//引入子页面
+import HomeDetail from '../pages/HomeDetail.vue'
+//将路由跟vue相关联，在vue项目中才能使用路由
+Vue.use(VueRouter);
+//创建路由对象 
+const router = new VueRouter({
+    //路由配置项
+    //项目中的所有页面配置
+    routes: [
+        //一个对象就是一个路径的配置项
+        {
+            //地址栏中url地址的hash
+            path: '/home',
+            //当地址栏中的hash值跟页面的path配置一致时，将组件替换到router-view组件的位置
+            component: Home,
+            children: [//子页面配置，需在父页面添加router-view容器
+                  {//一个对象就是一个子页面配置项
+//                  path: 'detail',
+                    //配置路径传参数
+                    path: 'detail/:id/:title',//冒号--模糊匹配
+                    component: HomeDetail
+                  }
+            ],
+            //配置别名
+//          alias: '/'          
+        },
+        {
+            path: '/discover',
+            component: Discover
+        },
+        {
+            path: '/setting',
+            component: Setting
+        },
+        //重定向
+        {
+            path: '/',
+            redirect: '/home'
+        },
+        {
+            path: '**', //匹配所有路径
+            component: Notfind
+        }
+       
+    ]
+})
+//向外输出
+ export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

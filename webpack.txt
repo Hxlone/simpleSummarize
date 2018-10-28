@@ -1,0 +1,166 @@
+
+NPM是随同NodeJS一起安装的包管理工具什么是Webpack？  WebPack可以看做是模块打包机：它做的事情是，分析你的项目结构，找到JavaScript模块以及其它的一些浏览器不能直接运行的拓展语言（Scss，TypeScript等），并将其转换和打包为合适的格式供浏览器使用。
+
+
+初始化项目路径
+>cnpm init
+    npm install 的参数   -D(--save-dev)开发依赖       -S(--save)代码依赖，生产依赖
+安装webpack工具
+在C盘全局安装：
+cnpm install webpack -g
+cnpm install webpack-dev-server -g
+局部安装
+>cnpm install webpack -D
+命令行中直接使用webpack工具编译js
+>webpack + 需要编译的入口文件路径 + 编译完成后的文件输出路径
+//不在命令行中声明webpack的编译入口以及输出文件路径。
+就需要提供webpack的编译的配置文件：webpack.config.js
+直接执行：
+>webpack
+>webpack -p  混淆压缩代码
+loader： webpack编译加载器
+不同的loader处理不同的文件类型
+css -->>  js
+vue --->>js
+jsx--->js
+css -->>  js：
+css-loader将css文件转为js
+style-loader 识别css样式
+安装：
+>cnpm install css-loader style-loader -D
+使用：
+module.exports = {
+    entry: './src/main.js',
+    output: {
+         path: __dirname+'/dist',
+         filename: 'vendor.js'
+    },
+    module: {
+         //所有loader的使用规则都在这里配置
+         loaders: [
+             //一个对象，就是一个处理规则
+             {
+                 test: /\.css$/,
+                 loader: 'style-loader!css-loader'//使用多个laoder时，使用顺序是逆序
+             }
+             
+         ]
+    }
+}
+对于静态资源路径使用file-loader
+安装：
+>cnpm install file-loader -D
+配置：
+    {   
+         test: /\.png$/,
+         loader: 'file-loader'
+    }
+    
+//服务器配置
+安装服务器
+>cnpm install webpack-dev-server -D
+启动服务器
+>webpack-dev-server
+
+
+
+vue: 
+     "vue": "^2.5.13",
+    "vuex": "^3.0.1"
+    "vue-router": "^3.0.1"
+    "vue-loader": "^13.3.0",
+     "vue-style-loader": "^3.0.1",
+     "vue-template-compiler": "^2.5.2",
+react:  
+    "prop-types": "^15.6.1",
+    "pubsub-js": "^1.6.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
+    "redux": "^3.7.2"
+
+
+webpack编译
+方式1：
+命令行输入
+webpack [入口文件路径] [输出文件路径]
+方式2：
+命令行输入 webpack (默认寻找根目录下webpack.config.js文件作为编译的配置文件)
+webpack --config [webpack的配置文件名字]  一般配置两个文件：webpack.config.build.js和webpack.config.dev.js
+编译es6
+cnpm install babel-loader babel-core --save-dev
+//解析es6的预设
+es2015
+es2016
+es2017
+env(包含了es2015~2017)
+cnpm install babel-preset-env --save-dev
+//转换es6函数，es6方法
+//方式1：独立转换：适用于开发插件
+cnpm install babel-polyfill --save
+//在哪个文件中使用了es函数或方法就在哪个文件中 import 'babel-polyfill'
+//方式2：整个项目转换：适用于开发项目/框架
+cnpm install babel-plugin-transform-runtime --save-dev
+cnpm install babel-runtime --save
+//配置babelrc文件
+
+
+package.json
+"scripts": {
+    "dev": "webpack-dev-server --config webpack.config.dev.js",
+    "build": "webpack --config webpack.config.build.js"
+  },
+
+一个webpack.config.build.js文件
+//生产版本
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+    //入口文件
+    //取值：string/object
+    entry: {
+       //key: 文件名字，value：文件路径
+       app: './src/main.js',
+       common: './src/common.js'
+    },
+    //输出文件
+    output: {
+       path: __dirname+'/dist',
+       filename: '[name].[hash:16].js'
+    },
+    
+    //配置webpack编译时使用的插件
+    plugins: [
+       //将编译好的js文件动态插入到template文件中，输出filename的文件放置在输出文件路径中
+       new HtmlWebpackPlugin({
+           template: './src/index.html',
+           filename: 'index.html'
+       })
+    ],
+    
+    module: {
+//     loaders: []
+       rules: [
+           {
+               test: /\.js/,
+               exclude: /node_modules/,
+//             use: {
+//                loader: 'babel-loader',
+//                options: {
+//                    
+//                }
+//             }
+               use: 'babel-loader'
+           }
+       ]
+    }
+}
+
+
+
+
+
+
+
+
+
+

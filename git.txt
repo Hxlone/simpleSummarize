@@ -1,0 +1,147 @@
+
+git介绍
+备份文件
+记录历史
+回到过去
+多端共享
+发展史
+CVS 集中式
+SVN 集中式
+Git 分布式
+GitHub 程序员社区网站
+git的三个区
+工作区：在工作中编写的代码
+暂存区：暂存，帮我们保存代码
+    作为过渡层
+    避免误操作
+    保护工作区和版本区
+    分支处理
+版本区：管理版本，版本库中的代码操作产生版本
+远程仓库
+设置贡献者（开发了代码就叫贡献者）
+创建 repository
+下载代码
+git clone url
+name
+email
+设置
+git config --global user.name "yourname"
+git config --global user.email "youremail"
+查看
+git config --global user.name
+git config --global user.email
+查看所有
+git config --list
+--------------------------------------------------------------------
+查看状态
+git status
+git add <filename>
+添加到暂存区
+git add .
+添加所有
+git commit
+将暂存区的添加到版本库
+填写日志
+git commit -m "日志信息"
+git commit -a -m "日志信息"
+添加到暂存区和版本库(-a相当于add)
+git log
+查看日志
+git diff
+工作区和暂存区的对比
+git diff --cached（--staged）
+暂存区和版本区的对比
+git diff master
+工作区和版本区之间的对比
+git reset HEAD filename
+撤销指定文件从工作区提交到缓存区的操作（撤销的是缓存区中的代码）
+git checkout -- filename
+撤销工作区返回到缓存区的状态，缓存区中没有修改再到版本区的状态
+git commit -m "log" --amend
+撤销上一次的提交操作，重新提交
+(先将忘提交的文件添加到缓存区，在撤销上一次提交操作)
+git删除操作
+只存在工作区的文件直接删除
+git rm filename
+工作区中删除了文件，通过该操作可将缓存区中的文件删除
+工作区中的文件没有删除，执行这句话就不起作用
+git rm -f filename
+删除工作区中的文件，和缓存区中的文件
+git rm -cached filename
+删除缓存区中的文件，保留工作区中的文件
+git恢复操作
+git checkout id filename
+恢复具体的文件到某个版本
+git reset --hard id
+恢复所有的文件到某个版本
+git reset --hard HEAD^
+所有文件回到上一个版本
+git reset --hard HEAD~num
+所有文件往回走第一个版本
+git reflog
+记录我的每一次操作行为
+在通过
+git reset --hard id
+回到我版本回滚前的状态
+代码上传到gitHub上（确保gitHub软件账号跟git所设置的账号一致）
+git push 远程仓库的名字  分支名字
+如：git push origin master
+git remote
+查看当前的远程仓库的名字（默认为origin）
+git remote -v
+查看当前的远程仓库的名字和对应的地址
+解决冲突
+解决问题
+方式1：
+git pull自动合并
+方式2：
+先将远程的代码拉到本地
+git fetch
+手动合并本地版本到远程仓库版本
+git merge origin/master
+比较不同
+git diff master origin/master
+再进行提交
+git commit -a -m "日志信息"
+提交代码到gitHub
+git push origin master
+git pull自动合并
+Git分支
+git branch
+查看分支
+git branch 分支名字
+创建分支
+git checkout 分支名字
+切换分支
+git checkout -b 分支名字
+创建并切换分支
+操作分支上的代码进行提交，然后合并到主分支
+切换回主分支，执行git merge 分支名字、
+删除分支（已合并的）
+git branch -d 分支名字
+删除分支（未合并的）
+git branch -D 分支名字
+在主分支上执行git branch --merged
+查看已经主分支上已经合并过的分支
+在主分支上执行git branch --no-merged
+查看已经主分支上没有合并过的分支
+github上的分支
+本地先创建分支在提交
+git push origin 分支名字
+github上直接创建
+在哪个分支的基础上创建，就在哪个目录下创建
+github上的标签
+git tag 查看标签
+git tag 标签名字
+git push origin 标签名字
+github上直接创建
+github上的分支
+git push
+github上直接创建
+github上的标签
+git tag
+github上直接创建
+开源项目协作
+fork
+pull request
+//fork项目，修改等等操作，commit->push  pull request
